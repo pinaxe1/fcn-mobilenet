@@ -11,17 +11,19 @@ import time
 from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
 
 
-FLAGS = tf.flags.FLAGS
-tf.flags.DEFINE_integer("batch_size", "2", "batch size for training")
-tf.flags.DEFINE_string("logs_dir", "logs/", "path to logs directory")
-tf.flags.DEFINE_string("data_dir", "Data_zoo/camvid/", "path to dataset")
-tf.flags.DEFINE_float("learning_rate", "1e-4",
-                      "Learning rate for Adam Optimizer")
-tf.flags.DEFINE_string("model_dir", "Model_zoo/", "Path to mobile model mat")
-tf.flags.DEFINE_bool('debug', "False", "Debug mode: True/ False")
-tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
+NUM_OF_CLASSES = 12
+learning_rate =1e-4   #  "Learning rate for Adam Optimizer")
+batch_size=4   # batch size for training")
+logs_dir= "logs/"  # "path to logs directory")
+data_dir= "Data_zoo/camvid/"  # "path to dataset")
+model_dir = "Model_zoo/" # , "Path to mobile model mat")
+chk_pt="model.ckpt-99500"
+debug=False   #", "Debug mode: True/ False")
+mode = "visualize"  # , "Mode train/ validate/ visualize")
 
-MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_1.0_224_2017_06_14.tar.gz'
+#MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_1.0_224_2017_06_14.tar.gz'
+MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_0.25_128.tgz'
+
 IMAGE_NET_MEAN = [103.939, 116.779, 123.68]
 IMAGE_SIZE = (320, 480)
 MAX_ITERATION = int(1e5 + 1)
@@ -35,22 +37,22 @@ DepthSepConv = namedtuple('DepthSepConv', ['kernel', 'stride', 'depth'])
 
 # _CONV_DEFS specifies the MobileNet body
 _CONV_DEFS = [
-    Conv(kernel=[3, 3], stride=2, depth=32),
+    Conv(kernel=[3, 3], stride=2, depth=8),
+    DepthSepConv(kernel=[3, 3], stride=1, depth=16),
+    DepthSepConv(kernel=[3, 3], stride=2, depth=32),
+    DepthSepConv(kernel=[3, 3], stride=1, depth=32),
+    DepthSepConv(kernel=[3, 3], stride=2, depth=64),
     DepthSepConv(kernel=[3, 3], stride=1, depth=64),
     DepthSepConv(kernel=[3, 3], stride=2, depth=128),
     DepthSepConv(kernel=[3, 3], stride=1, depth=128),
+    DepthSepConv(kernel=[3, 3], stride=1, depth=128),
+    DepthSepConv(kernel=[3, 3], stride=1, depth=128),
+    DepthSepConv(kernel=[3, 3], stride=1, depth=128),
+    DepthSepConv(kernel=[3, 3], stride=1, depth=128),
     DepthSepConv(kernel=[3, 3], stride=2, depth=256),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=256),
-    DepthSepConv(kernel=[3, 3], stride=2, depth=512),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=512),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=512),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=512),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=512),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=512),
-    DepthSepConv(kernel=[3, 3], stride=2, depth=1024),
-    DepthSepConv(kernel=[3, 3], stride=1, depth=1024)
+    DepthSepConv(kernel=[3, 3], stride=1, depth=256)
 ]
-NUM_OF_CLASSES = 12
+
 
 
 def mobile_net(image, final_endpoint=None, num_classes=NUM_OF_CLASSES):
@@ -101,9 +103,9 @@ def inference(image, dropout_keep_prob, num_classes=NUM_OF_CLASSES):
 
 
 def train(loss_val, var_list):
-    optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
+    optimizer = tf.train.AdamOptimizer(learning_rate)
     grads = optimizer.compute_gradients(loss_val, var_list=var_list)
-    if FLAGS.debug:
+    if debug:
         # print(len(var_list))
         for grad, var in grads:
             utils.add_gradient_summary(grad, var)
@@ -111,7 +113,8 @@ def train(loss_val, var_list):
 
 
 def main(argv=None):
-    utils.get_model_data(FLAGS.model_dir, MODEL_URL)
+    
+    utils.get_model_data(model_dir, MODEL_URL)
     keep_probability = tf.placeholder(tf.float32, name="keep_probabilty")
     image = tf.placeholder(
         tf.float32, shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 3], name="input_image")
@@ -119,6 +122,7 @@ def main(argv=None):
         tf.int32, shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 1], name="annotation")
 
     pred_annotation, logits = inference(image, dropout_keep_prob=keep_probability)
+
     variable_to_restore = [v for v in slim.get_variables_to_restore() if v.name.split('/')[0] == 'MobilenetV1']
     tf.summary.image("input_image", image, max_outputs=2)
     tf.summary.image("ground_truth", tf.cast(
@@ -129,7 +133,7 @@ def main(argv=None):
     tf.summary.scalar("entropy", loss)
 
     trainable_var = tf.trainable_variables()
-    if FLAGS.debug:
+    if debug:
         for var in trainable_var:
             utils.add_to_regularization_and_summary(var)
     train_op = train(loss, trainable_var)
@@ -138,34 +142,37 @@ def main(argv=None):
     summary_op = tf.summary.merge_all()
 
     print("Setting up image reader...")
-    train_records, valid_records, test_records = scene_parsing.read_dataset(FLAGS.data_dir)
+    train_records, valid_records, test_records = scene_parsing.read_dataset(data_dir)
     print(len(train_records))
     print(len(valid_records))
 
     print("Setting up dataset reader")
     image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
-    train_dataset_reader = dataset.BatchDatset(
-        train_records, image_options)
-    validation_dataset_reader = dataset.BatchDatset(
-        valid_records, image_options)
-    test_dataset_reader = dataset.BatchDatset(
-        test_records, image_options)
+    train_dataset_reader = dataset.BatchDatset( train_records, image_options)
+    validation_dataset_reader = dataset.BatchDatset( valid_records, image_options)
+    test_dataset_reader = dataset.BatchDatset( test_records, image_options)
 
     sess = tf.Session()
-
-    if FLAGS.mode == "train":
+    
+    writer = tf.summary.FileWriter("f:/logs/")
+    graph = tf.get_default_graph()
+    writer.add_graph(graph)
+    
+    if mode == "train":
         print("Setting up Saver...")
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(variable_to_restore)
-        saver.restore(sess, 'Model_zoo/mobilenet_v1_1.0_224.ckpt')
-        summary_writer = tf.summary.FileWriter(FLAGS.logs_dir, sess.graph)
+        #saver.restore(sess, 'Model_zoo/mobilenet_v1_1.0_224.ckpt')
+        #saver.restore(sess, 'Model_zoo/mobilenet_v1_0.25_128.ckpt')
+        saver.restore(sess, logs_dir+chk_pt)
+        summary_writer = tf.summary.FileWriter(logs_dir, sess.graph)
 
         # reset saver
         saver = tf.train.Saver()
         min_valid_loss = 1e5
-        for itr in xrange(MAX_ITERATION):
+        for itr in range(MAX_ITERATION):
             train_images, train_annotations = train_dataset_reader.next_batch(
-                FLAGS.batch_size)
+                batch_size)
             feed_dict = {image: train_images,
                          annotation: train_annotations, keep_probability: 0.85}
 
@@ -178,15 +185,15 @@ def main(argv=None):
                 summary_writer.add_summary(summary_str, itr)
 
             if itr % 500 == 0:
-                saver.save(sess, FLAGS.logs_dir + "model.ckpt", itr)
+                saver.save(sess, logs_dir + "model.ckpt", itr)
                 
 
-    elif FLAGS.mode == "visualize":
+    elif mode == "visualize":
         saver = tf.train.Saver()
         # print_tensors_in_checkpoint_file(file_name='logs/model.ckpt-5500', tensor_name='', all_tensors=False)
-        saver.restore(sess, 'logs/model.ckpt-77500')
+        saver.restore(sess, logs_dir+chk_pt)
         valid_images, valid_annotations = validation_dataset_reader.get_random_batch(
-            FLAGS.batch_size)
+            batch_size)
         t1 = time.time()
         pred = sess.run(pred_annotation, feed_dict={image: valid_images, annotation: valid_annotations,
                                                     keep_probability: 1.0})
@@ -195,18 +202,18 @@ def main(argv=None):
         valid_annotations = np.squeeze(valid_annotations, axis=3)
         pred = np.squeeze(pred, axis=3)
 
-        for itr in range(FLAGS.batch_size):
-            utils.save_image(valid_images[itr].astype(np.uint8), FLAGS.logs_dir, name="inp_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(valid_annotations[itr]), FLAGS.logs_dir, name="gt_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(pred[itr]), FLAGS.logs_dir, name="pred_" + str(5 + itr))
+        for itr in range(batch_size):
+            utils.save_image(valid_images[itr].astype(np.uint8), logs_dir, name="inp_" + str(5 + itr))
+            utils.save_image(utils.decode_segmap(valid_annotations[itr]), logs_dir, name="gt_" + str(5 + itr))
+            utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="pred_" + str(5 + itr))
             print("Saved image: %d" % itr)
-    elif FLAGS.mode == "validate":
+    elif mode == "validate":
         saver = tf.train.Saver()
-        saver.restore(sess, 'logs/model.ckpt-99500')
+        saver.restore(sess, logs_dir+chk_pt)
         gts, preds = [], []
-        for itr in xrange(116):
+        for itr in range(116):
             test_images, test_annotations = test_dataset_reader.next_batch(
-                FLAGS.batch_size
+                batch_size
             )
             pred = sess.run(pred_annotation, feed_dict={image: test_images, annotation: test_annotations,
                                                         keep_probability: 1.0})

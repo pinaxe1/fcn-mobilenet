@@ -17,7 +17,7 @@ batch_size=4   # batch size for training")
 logs_dir= "logs/"  # "path to logs directory")
 data_dir= "Data_zoo/camvid/"  # "path to dataset")
 model_dir = "Model_zoo/" # , "Path to mobile model mat")
-chk_pt="model.ckpt-99500"
+chk_pt="model.ckpt-99500" # Current checkpoint. Better makek it automatically
 debug=False   #", "Debug mode: True/ False")
 mode = "visualize"  # , "Mode train/ validate/ visualize")
 
@@ -154,7 +154,7 @@ def main(argv=None):
 
     sess = tf.Session()
     
-    writer = tf.summary.FileWriter("f:/logs/")
+    writer = tf.summary.FileWriter("logs/")
     graph = tf.get_default_graph()
     writer.add_graph(graph)
     
@@ -203,9 +203,9 @@ def main(argv=None):
         pred = np.squeeze(pred, axis=3)
 
         for itr in range(batch_size):
-            utils.save_image(valid_images[itr].astype(np.uint8), logs_dir, name="inp_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(valid_annotations[itr]), logs_dir, name="gt_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="pred_" + str(5 + itr))
+            utils.save_image(valid_images[itr].astype(np.uint8), logs_dir, name="1inp_" + str(5 + itr))
+            utils.save_image(utils.decode_segmap(valid_annotations[itr]), logs_dir, name="1gt_" + str(5 + itr))
+            utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="1pred_" + str(5 + itr))
             print("Saved image: %d" % itr)
     elif mode == "validate":
         saver = tf.train.Saver()

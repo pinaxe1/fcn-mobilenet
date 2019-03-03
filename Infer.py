@@ -1,7 +1,10 @@
-'''
+# -*- coding: utf-8 -*-
+"""
+
  The script is an excerpt from Fcn.py to perform Inference only procedures.
  So it has no routines for training nor for validation.
-'''
+ 
+"""
 
 from __future__ import print_function
 import tensorflow as tf
@@ -158,7 +161,7 @@ def main(argv=None):
 
     sess = tf.Session()
     
-    writer = tf.summary.FileWriter("f:/logs/")
+    writer = tf.summary.FileWriter("/logs/")
     graph = tf.get_default_graph()
     writer.add_graph(graph)
     
@@ -177,9 +180,9 @@ def main(argv=None):
         pred = np.squeeze(pred, axis=3)
 
         for itr in range(batch_size):
-            utils.save_image(valid_images[itr].astype(np.uint8), logs_dir, name="inp_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(valid_annotations[itr]), logs_dir, name="gt_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="pred_" + str(5 + itr))
+            utils.save_image(valid_images[itr].astype(np.uint8), logs_dir, name="1inp_" + str(5 + itr))
+            utils.save_image(utils.decode_segmap(valid_annotations[itr]), logs_dir, name="1gt_" + str(5 + itr))
+            utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="1pred_" + str(5 + itr))
             print("Saved image: %d" % itr)
 
 

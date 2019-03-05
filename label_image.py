@@ -12,14 +12,13 @@ import numpy as np
 import tensorflow.contrib.slim as slim
 import Utils as utils
 from collections import namedtuple
-import SceneParsingData as scene_parsing
 import BatchDatsetReader as dataset
 import time
 
 
 NUM_OF_CLASSES = 12
 learning_rate =1e-4   #  "Learning rate for Adam Optimizer")
-batch_size=4   # batch size for training")
+batch_size=1   # batch size for training")
 logs_dir= "logs/"  # "path to logs directory")
 data_dir= "Data_zoo/camvid/"  # "path to dataset")
 model_dir = "Model_zoo/" # , "Path to mobile model mat")
@@ -117,14 +116,13 @@ def main(argv=None):
     annot = tf.placeholder( tf.int32  , shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 1], name="annotation" )
 
     pred_annotation, logits = inference(image, dropout_keep_prob=keep_probability)
-
-
-    print("Setting up image reader...")
-    train_records, valid_records, test_records = scene_parsing.read_dataset(data_dir)
-    print(len(train_records))
-    print(len(valid_records))
-
-    print("Setting up dataset reader")
+    
+    # A crazy way to feed a filename into dataset reader see below.
+    train_records= []
+    f='20180428_09040_.png'    
+    record = {'image': data_dir + 'train/'  + f,  'annotation': data_dir + 'trainannot/' + f}
+    train_records.append(record)
+            
     image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
     train_dataset_reader = dataset.BatchDatset( train_records, image_options)
 

@@ -17,8 +17,9 @@ Data_zoo/camvid/val<BR>
                /valannot<BR>
 Annotated image means a pair of images. An image itself and it's annotation.
 It makes a pair of PNG images with the same names. 
-Images would sit in "train/" folder their annotations in "trainannot/" folder. Same for "test/" and "val/" folders.
-Label image is an image painted color #000000 for a background, color #000001 for objects of class 1, color #000002 for class 2 and so on up to NUM_OF_CLASSES = 12
+Images would sit in "train/" folder their annotations in "trainannot/" folder. Same for "test/" and "val/" folders.<BR>
+Images supposed to be PNG RGB 24Bit color depth.
+Label image is a graiscale PNG with 8bit color depth painted in #00 a background, color #01 for objects of class 1, color #02 for class 2 and so on up to NUM_OF_CLASSES which are 12 in this repo but yo may set it to other values up to 255.<br>
 Labeling could be conveniently done with Pixel Annotation tool see https://github.com/abreheret/PixelAnnotationTool<BR>
 
 The programm has 3 modes "train", "test", "visualise"<BR>

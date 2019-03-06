@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-
  The script is an excerpt from Fcn.py to perform semantic segmentation.
  All routines for training and validation are stripped away.
  
@@ -137,18 +136,18 @@ def main(argv=None):
         saver = tf.train.Saver()
         # print_tensors_in_checkpoint_file(file_name='logs/model.ckpt-5500', tensor_name='', all_tensors=False)
         saver.restore(sess, logs_dir+chk_pt)
-        images, annotations = train_dataset_reader.get_random_batch(batch_size)
+        images, _ = train_dataset_reader.get_random_batch(batch_size)
         t1 = time.time()
-        pred = sess.run(pred_annotation, feed_dict={image: images, annot: annotations,
+        pred = sess.run(pred_annotation, feed_dict={image: images, # annot: annotations,
                                                     keep_probability: 1.0})
         t2 = time.time()
-        print(t2 - t1)
-        annotations = np.squeeze(annotations, axis=3)
+        print('time in sec elapsed:',t2 - t1)
+        #annotations = np.squeeze(annotations, axis=3)
         pred = np.squeeze(pred, axis=3)
 
         for itr in range(batch_size):
             utils.save_image(images[itr].astype(np.uint8), logs_dir, name="1inp_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(annotations[itr]), logs_dir, name="1gt_" + str(5 + itr))
+           # utils.save_image(utils.decode_segmap(annotations[itr]), logs_dir, name="1gt_" + str(5 + itr))
             utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="1pred_" + str(5 + itr))
             print("Saved image: %d" % itr)
 

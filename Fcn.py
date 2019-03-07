@@ -17,9 +17,9 @@ batch_size=4   # batch size for training")
 logs_dir= "logs/"  # "path to logs directory")
 data_dir= "Data_zoo/camvid/"  # "path to dataset")
 model_dir = "Model_zoo/" # , "Path to mobile model mat")
-chk_pt="model.ckpt-99500" # Current checkpoint. Better makek it automatically
-debug=False   #", "Debug mode: True/ False")
-mode = "visualize"  # , "Mode train/ validate/ visualize")
+chk_pt="model.ckpt-100000" # Latest checkpoint. Better select it automatically
+debug=False   # Debug mode: True False 
+mode = "train"  #  Modes:  "train"validate"visualize"
 
 #MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_1.0_224_2017_06_14.tar.gz'
 MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_0.25_128.tgz'
@@ -56,7 +56,7 @@ _CONV_DEFS = [
 
 
 def mobile_net(image, final_endpoint=None, num_classes=NUM_OF_CLASSES):
-    with tf.variable_scope('MobilenetV1',reuse=tf.AUTO_REUSE):
+    with tf.variable_scope('MobilenetV1'):
         net = image
         with slim.arg_scope([slim.conv2d, slim.separable_conv2d], padding='SAME'):
             for i, conv_def in enumerate(_CONV_DEFS):
@@ -91,7 +91,7 @@ def inference(image, dropout_keep_prob, num_classes=NUM_OF_CLASSES):
     image -= mean
     net = mobile_net(image, num_classes=num_classes)
 
-    with tf.variable_scope('inference',reuse=tf.AUTO_REUSE):
+    with tf.variable_scope('inference'):
         net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout')
         net = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
                           normalizer_fn=None, scope='Conv2d_1x1')
@@ -186,7 +186,7 @@ def main(argv=None):
 
             if itr % 500 == 0:
                 saver.save(sess, logs_dir + "model.ckpt", itr)
-                
+                print("Saving checkpt "+logs_dir+"model.ckpt-",itr)
 
     elif mode == "visualize":
         saver = tf.train.Saver()

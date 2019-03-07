@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
- Code derived from:
- https://github.com/vietdoan/fcn-mobilenet
+ The code derived from:  https://github.com/vietdoan/fcn-mobilenet
+ Which is derivation from: https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.py
  The script is an excerpt from Fcn.py to perform semantic segmentation.
  All routines for training and validation are stripped away.
  
@@ -15,7 +15,7 @@ import Utils as utils
 from collections import namedtuple
 import BatchDatsetReader as dataset
 import time
-
+import SceneParsingData as scene_parsing
 
 NUM_OF_CLASSES = 12
 learning_rate =1e-4   #  "Learning rate for Adam Optimizer")
@@ -117,30 +117,24 @@ def main(argv=None):
     annot = tf.placeholder( tf.int32  , shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 1], name="annotation" )
 
     pred_annotation, logits = inference(image, dropout_keep_prob=keep_probability)
-    
-    # A crazy way to feed a filename into dataset reader see below.
-    train_records= []
-    f='20180428_09040_.png'  
-    f='20180429_081127.png'
-    record = {'image': data_dir + 'train/'  + f,  'annotation': data_dir + 'trainannot/' + f}
-    train_records.append(record)
-            
+        
+    # Dataset_reader reads and transforms WHOLE dataset into memory so for 1 image job it is crazy overkill
     image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
+    train_records, _, _ = scene_parsing.read_dataset(data_dir)
     train_dataset_reader = dataset.BatchDatset( train_records, image_options)
-
+    # Dataset_reader reads and transforms WHOLE dataset into memory so for 1 image job it is crazy overkill
 
     sess = tf.Session()
     
-    writer = tf.summary.FileWriter("logs/")
-    graph = tf.get_default_graph()
-    writer.add_graph(graph)
     
     if mode == "visualize":
         saver = tf.train.Saver()
         # print_tensors_in_checkpoint_file(file_name='logs/model.ckpt-5500', tensor_name='', all_tensors=False)
         saver.restore(sess, logs_dir+chk_pt)
-        images, _ = train_dataset_reader.get_random_batch(batch_size)
-        
+        #to read a batch of images USE next line a dataset_reader.
+        # images, _ = train_dataset_reader.get_random_batch(batch_size)
+        # To read a specific image use next line READ_ONE
+        images = train_dataset_reader.read_one_image(data_dir + 'train/20180429_081127.png')
         t1 = time.time()
         pred = sess.run(pred_annotation, feed_dict={image: images, keep_probability: 1.0})
         t2 = time.time()
@@ -152,8 +146,7 @@ def main(argv=None):
             utils.save_image(images[itr].astype(np.uint8), logs_dir, name="1inp_" + str(5 + itr))
            # utils.save_image(utils.decode_segmap(annotations[itr]), logs_dir, name="1gt_" + str(5 + itr))
             utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="1pred_" + str(5 + itr))
-            print("Saved image: %d" % itr)
 
-        sess.close()
+    sess.close()
 if __name__ == "__main__":
     tf.app.run()

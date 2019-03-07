@@ -233,6 +233,6 @@ def main(argv=None):
         for i in range(NUM_OF_CLASSES):
             print('{} {}'.format(i, class_iou[i]))
 
-
+    sess.close()
 if __name__ == "__main__":
     tf.app.run()

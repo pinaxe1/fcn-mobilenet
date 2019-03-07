@@ -56,7 +56,7 @@ _CONV_DEFS = [
 
 
 def mobile_net(image, final_endpoint=None, num_classes=NUM_OF_CLASSES):
-    with tf.variable_scope('MobilenetV1'):
+    with tf.variable_scope('MobilenetV1',reuse=tf.AUTO_REUSE):
         net = image
         with slim.arg_scope([slim.conv2d, slim.separable_conv2d], padding='SAME'):
             for i, conv_def in enumerate(_CONV_DEFS):
@@ -91,7 +91,7 @@ def inference(image, dropout_keep_prob, num_classes=NUM_OF_CLASSES):
     image -= mean
     net = mobile_net(image, num_classes=num_classes)
 
-    with tf.variable_scope('inference'):
+    with tf.variable_scope('inference',reuse=tf.AUTO_REUSE):
         net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout')
         net = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
                           normalizer_fn=None, scope='Conv2d_1x1')

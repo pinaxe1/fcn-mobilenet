@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+ Code derived from:
+ https://github.com/vietdoan/fcn-mobilenet
  The script is an excerpt from Fcn.py to perform semantic segmentation.
  All routines for training and validation are stripped away.
  

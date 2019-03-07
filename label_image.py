@@ -59,7 +59,7 @@ _CONV_DEFS = [
 
 
 def mobile_net(image, final_endpoint=None, num_classes=NUM_OF_CLASSES):
-    with tf.variable_scope('MobilenetV1'):
+    with tf.variable_scope('MobilenetV1',reuse=tf.AUTO_REUSE):
         net = image
         with slim.arg_scope([slim.conv2d, slim.separable_conv2d], padding='SAME'):
             for i, conv_def in enumerate(_CONV_DEFS):
@@ -94,7 +94,7 @@ def inference(image, dropout_keep_prob, num_classes=NUM_OF_CLASSES):
     image -= mean
     net = mobile_net(image, num_classes=num_classes)
 
-    with tf.variable_scope('inference'):
+    with tf.variable_scope('inference',reuse=tf.AUTO_REUSE):
         net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout')
         net = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
                           normalizer_fn=None, scope='Conv2d_1x1')
@@ -118,7 +118,8 @@ def main(argv=None):
     
     # A crazy way to feed a filename into dataset reader see below.
     train_records= []
-    f='20180428_09040_.png'    
+    f='20180428_09040_.png'  
+    f='20180429_081127.png'
     record = {'image': data_dir + 'train/'  + f,  'annotation': data_dir + 'trainannot/' + f}
     train_records.append(record)
             
@@ -137,11 +138,11 @@ def main(argv=None):
         # print_tensors_in_checkpoint_file(file_name='logs/model.ckpt-5500', tensor_name='', all_tensors=False)
         saver.restore(sess, logs_dir+chk_pt)
         images, _ = train_dataset_reader.get_random_batch(batch_size)
+        
         t1 = time.time()
-        pred = sess.run(pred_annotation, feed_dict={image: images, # annot: annotations,
-                                                    keep_probability: 1.0})
+        pred = sess.run(pred_annotation, feed_dict={image: images, keep_probability: 1.0})
         t2 = time.time()
-        print('time in sec elapsed:',t2 - t1)
+        print('time sec. elapsed:',t2 - t1)
         #annotations = np.squeeze(annotations, axis=3)
         pred = np.squeeze(pred, axis=3)
 
@@ -151,6 +152,6 @@ def main(argv=None):
             utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="1pred_" + str(5 + itr))
             print("Saved image: %d" % itr)
 
-
+        sess.close()
 if __name__ == "__main__":
     tf.app.run()

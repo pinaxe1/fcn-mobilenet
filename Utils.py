@@ -54,6 +54,21 @@ def save_image(image, save_dir, name, mean=None):
     misc.imsave(os.path.join(save_dir, name + ".png"), image)
 
 
+def read_image(filename,image_options):
+    image = misc.imread(filename)
+    if len(image.shape) < 3:  # make sure images are of shape(h,w,3)
+       image = np.array([image for i in range(3)])
+    if image_options.get("resize", False):
+       resize_size = image_options["resize_size"]
+       resize_size = resize_size if isinstance(resize_size, tuple) else (resize_size, resize_size)
+       resize_image = misc.imresize(image, resize_size, interp='nearest')
+    else:
+       resize_image = image
+    if len(resize_image.shape) == 3 and resize_image.shape[2] == 3:
+       resize_image = resize_image[:, :, ::-1]
+    return np.array([resize_image])
+
+
 def cal_loss(logits, labels):
     loss_weight = np.array([
       0.2595,

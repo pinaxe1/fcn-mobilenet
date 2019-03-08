@@ -13,9 +13,7 @@ import numpy as np
 import tensorflow.contrib.slim as slim
 import Utils as utils
 from collections import namedtuple
-import BatchDatsetReader as dataset
 import time
-import SceneParsingData as scene_parsing
 
 NUM_OF_CLASSES = 12
 learning_rate =1e-4   #  "Learning rate for Adam Optimizer")
@@ -114,38 +112,27 @@ def main(argv=None):
     utils.get_model_data(model_dir, MODEL_URL)
     keep_probability = tf.placeholder(tf.float32, name="keep_probabilty")
     image = tf.placeholder( tf.float32, shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 3], name="input_image")
-    annot = tf.placeholder( tf.int32  , shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 1], name="annotation" )
-
+    
     pred_annotation, logits = inference(image, dropout_keep_prob=keep_probability)
         
-    # Dataset_reader reads and transforms WHOLE dataset into memory so for 1 image job it is crazy overkill
     image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
-    train_records, _, _ = scene_parsing.read_dataset(data_dir)
-    train_dataset_reader = dataset.BatchDatset( train_records, image_options)
-    # Dataset_reader reads and transforms WHOLE dataset into memory so for 1 image job it is crazy overkill
-
     sess = tf.Session()
     
     
     if mode == "visualize":
         saver = tf.train.Saver()
-        # print_tensors_in_checkpoint_file(file_name='logs/model.ckpt-5500', tensor_name='', all_tensors=False)
         saver.restore(sess, logs_dir+chk_pt)
-        #to read a batch of images USE next line a dataset_reader.
-        # images, _ = train_dataset_reader.get_random_batch(batch_size)
-        # To read a specific image use next line READ_ONE
-        images = train_dataset_reader.read_one_image(data_dir + 'train/20180429_081127.png')
+       
+        images = utils.read_image(data_dir + 'train/20180429_081127.png',image_options)
         t1 = time.time()
         pred = sess.run(pred_annotation, feed_dict={image: images, keep_probability: 1.0})
         t2 = time.time()
         print('time sec. elapsed:',t2 - t1)
-        #annotations = np.squeeze(annotations, axis=3)
+        
         pred = np.squeeze(pred, axis=3)
-
-        for itr in range(batch_size):
-            utils.save_image(images[itr].astype(np.uint8), logs_dir, name="1inp_" + str(5 + itr))
-           # utils.save_image(utils.decode_segmap(annotations[itr]), logs_dir, name="1gt_" + str(5 + itr))
-            utils.save_image(utils.decode_segmap(pred[itr]), logs_dir, name="1pred_" + str(5 + itr))
+        
+        utils.save_image(images[0].astype(np.uint8), logs_dir, name="1inp_")
+        utils.save_image(utils.decode_segmap(pred[0]), logs_dir, name="1pred_")
 
     sess.close()
 if __name__ == "__main__":

@@ -10,14 +10,13 @@ The project implments Fully Convolutional Network based on MobileNet v1  image_s
 
 To run the program you should have about a hundred annotated images stored in<BR>
 Data_zoo/camvid/train<BR>
-               /trainannot<BR>
+Data_zoo/camvid/trainannot<BR>
 Data_zoo/camvid/test<BR>
-               /testannot<BR>
+Data_zoo/camvid/testannot<BR>
 Data_zoo/camvid/val<BR>
-               /valannot<BR>
-Annotated image means a pair of images. An image itself and it's annotation.
-It makes a pair of PNG images with the same names. 
-Images would sit in "train/" folder their annotations in "trainannot/" folder. Same for "test/" and "val/" folders.<BR>
+Data_zoo/camvid/valannot<BR>
+"Annotated image" means a pair of of PNG images with the same names. An image itself and it's annotation.
+Images would sit in ".../train/" folder their annotations in "trainannot/" folder. Same for "test/" and "val/" folders.<BR>
 Images supposed to be PNG RGB 24Bit color depth.
 Label image is a graiscale PNG with 8bit color depth painted in #00 a background, color #01 for objects of class 1, color #02 for class 2 and so on up to NUM_OF_CLASSES which are 12 in this repo but yo may set it to other values up to 255.<br>
 Labeling could be conveniently done with Pixel Annotation tool see https://github.com/abreheret/PixelAnnotationTool<BR>

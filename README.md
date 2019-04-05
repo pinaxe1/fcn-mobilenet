@@ -30,4 +30,4 @@ To validate the network. Set "mode" to "validate"  <BR>
 It'll print out average losses for each class.
   
 To see how the network will label images set "mode" to "visualize"  <BR>
-It'll pick N images (N=batch size, to be exact) from Validation set and then create a few result images in a "logs/" folder.
+It'll pick 4 images (batch_size=4, to be exact) from Validation set and then create a few result images in a "logs/" folder.

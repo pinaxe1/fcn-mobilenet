@@ -103,11 +103,10 @@ def inference(image, dropout_keep_prob, num_classes=NUM_OF_CLASSES):
     return tf.expand_dims(annotation_pred, dim=3), net
 
 
-
-
 def main(argv=None):
     cap = cv2.VideoCapture(0)
     cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('predi', cv2.WINDOW_NORMAL)
 
     keep_probability = tf.placeholder(tf.float32, name="keep_probabilty")
     image = tf.placeholder( tf.float32, shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 3], name="input_image")
@@ -124,16 +123,16 @@ def main(argv=None):
         _, frame = cap.read()
         #rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
         rgb=utils.shape_image(frame,image_options)
-        # cv2.imshow('frame', frame)
+        cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
           cv2.imwrite('capture.jpg', frame)
           break       
     
         images = rgb
         pred = sess.run(pred_annotation, feed_dict={image: images, keep_probability: 1.0})
-        
+ 
         pred = np.squeeze(pred, axis=3)
-        cv2.imshow('frame', utils.decode_segmap(pred[0]))
+        cv2.imshow('predi', utils.decode_segmap(pred[0]))
         
 
     sess.close()

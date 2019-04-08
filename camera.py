@@ -9,7 +9,8 @@ To create and automatically annotate datasets. Pixelwize annotation.
 3. Precc "b" button. Camera will take background shot.
 4. Put object to annotate on the scene. 
 5. Press "q" button to take object shots.
-6. The application wil take shot and create two png files. The object and the mask
+6. The application wil take shot and create two png files an object and a mask.
+A mask is a diff betveen a backdrop and a an object images.
 
 @author: Pinaxe
 """

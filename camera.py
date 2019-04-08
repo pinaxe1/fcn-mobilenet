@@ -31,9 +31,11 @@ while(True):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)     
         cv2.absdiff(backdrop,gray,mask)
         #mask = [0 if a_ > treshold else 255 for a_ in mask]
-        mask[mask<4]=0
+        mask[mask<40]=0
+        mask[mask>0 ]=128
+        
         cv2.imwrite(datetime.datetime.now().strftime("%Y%m%d-%H%M%S-mask")+'.png', mask)
-        #cv2.imwrite(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+'.png', gray)
+        cv2.imwrite(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+'.png', frame)
     if wk == ord('x'):
         break      
 

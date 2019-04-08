@@ -1,7 +1,8 @@
 """
-Code derived from:
+Code derived from
 https://github.com/vietdoan/fcn-mobilenet
 """
+
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
@@ -21,9 +22,10 @@ batch_size=4   # batch size for training")
 logs_dir= "logs/"  # "path to logs directory")
 data_dir= "Data_zoo/camvid/"  # "path to dataset")
 model_dir = "Model_zoo/" # , "Path to mobile model mat")
-chk_pt="model.ckpt-100000" # Latest checkpoint. Better select it automatically
+model="mobilenet_v1_0.25_128.ckpt" # Latest checkpoint. Better select it automatically
+chk_pt="model.ckpt-100000"#"mobilenet_v1_0.25_128.ckpt" # Latest checkpoint. Better select it automatically
 debug=False   # Debug mode: True False 
-mode = "train"  #  Modes:  "train"validate"visualize"
+mode = "validate"  #  Modes:  "train"validate"visualize"
 
 #MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_1.0_224_2017_06_14.tar.gz'
 MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_0.25_128.tgz'
@@ -168,6 +170,7 @@ def main(argv=None):
         saver = tf.train.Saver(variable_to_restore)
         #saver.restore(sess, 'Model_zoo/mobilenet_v1_1.0_224.ckpt')
         #saver.restore(sess, 'Model_zoo/mobilenet_v1_0.25_128.ckpt')
+        #saver.restore(sess, model_dir+model)
         saver.restore(sess, logs_dir+chk_pt)
         summary_writer = tf.summary.FileWriter(logs_dir, sess.graph)
 

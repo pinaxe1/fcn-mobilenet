@@ -7,6 +7,7 @@ import scipy.misc as misc
 
 class BatchDatset:
     files = []
+    arraa = []
     images = []
     annotations = []
     image_options = {}
@@ -32,16 +33,20 @@ class BatchDatset:
 
     def _read_images(self):
         self.__channels = True
-        self.images = np.array([self._transform(filename['image']) for filename in self.files])
+        self.arraa =[self._transform(filename['image']) for filename in self.files]
+        self.images = np.array(self.arraa)
         self.__channels = False
         self.annotations = np.array([np.expand_dims(self._transform(filename['annotation']), axis=3) for filename in self.files])
         print (self.images.shape)
         print (self.annotations.shape)
 
     def _transform(self, filename):
+               
         image = misc.imread(filename)
-        if self.__channels and len(image.shape) < 3:  # make sure images are of shape(h,w,3)
-            image = np.array([image for i in range(3)])
+        if self.__channels and len(image.shape) != 3: # make sure images are of shape(h,w,3)
+            image=image.convert('RGB')
+#        if self.__channels and len(image.shape) < 3:  # make sure images are of shape(h,w,3)
+#            image = np.array([image for i in range(3)])
 
         if self.image_options.get("resize", False) and self.image_options["resize"]:
             resize_size = self.image_options["resize_size"]
@@ -81,3 +86,7 @@ class BatchDatset:
     def get_random_batch(self, batch_size):
         indexes = np.random.randint(0, self.images.shape[0], size=[batch_size]).tolist()
         return self.images[indexes], self.annotations[indexes]
+
+    def read_one_image(self, filename):
+        return np.array([self._transform(filename)])
+        

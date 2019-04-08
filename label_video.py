@@ -121,7 +121,7 @@ def main(argv=None):
     
     while(True):
         _, frame = cap.read()
-        #rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
         rgb=utils.shape_image(frame,image_options)
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):

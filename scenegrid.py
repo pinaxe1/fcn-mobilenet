@@ -1,5 +1,11 @@
 import cv2
-
+'''
+The script intended to explore transformations from screen coordinates to a desk surface coordinates.
+It employs the usb camera to take an image of a page with printed square or a greed.
+Then you have to (use a mouse) click 4 points in the corners of the square.
+The script will calculate 2 points of infinite perspective for the two sets of "parallel" lines.
+Then it'll draw acoordinate grid over the square.
+'''
 def drawLines1(img,tuplist):
     
     if len(tuplist)>1:         

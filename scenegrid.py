@@ -49,7 +49,7 @@ def drawLines3(img,tuplist):
            cv2.line(img,pointx,(x,y),(0,255,0),1)
 
 def drawLines4(img,tuplist):
-    screen=[(0,0),(0,480),(640,480),(640,0)]
+    screen=[(((0,0),(0,480)),((0,480),(640,480)),((640,480),(640,0)),((0,0),(640,0)))]
     if len(tuplist)==4:
        pointx1=intersection(tuplist[3],tuplist[0],tuplist[1],tuplist[2])
        pointx2=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
@@ -57,11 +57,9 @@ def drawLines4(img,tuplist):
        m2=slope(pointx2,tuplist[1])
        dm =(m1-m2)/6
        for i in range(m1,m2,dm):
-          poinxs   
-       for i in range(4):
-           x=round(x2+i*dx)
-           y=round(y2+i*dy)
-           cv2.line(img,pointx,(x,y),(0,255,0),1)
+          for j in screen :
+             pointxs=intersection1(pointx1,i,j])   
+             cv2.line(img,pointx1,pointxs,(0,255,0),1)
 
     
 def dif(po1,po2):

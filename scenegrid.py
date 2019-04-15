@@ -48,6 +48,21 @@ def drawLines3(img,tuplist):
            y=round(y2+i*dy)
            cv2.line(img,pointx,(x,y),(0,255,0),1)
 
+def drawLines4(img,tuplist):
+    screen=[(0,0),(0,480),(640,480),(640,0)]
+    if len(tuplist)==4:
+       pointx1=intersection(tuplist[3],tuplist[0],tuplist[1],tuplist[2])
+       pointx2=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
+       m1=slope(pointx1,tuplist[0])
+       m2=slope(pointx2,tuplist[1])
+       dm =(m1-m2)/6
+       for i in range(m1,m2,dm):
+          poinxs   
+       for i in range(4):
+           x=round(x2+i*dx)
+           y=round(y2+i*dy)
+           cv2.line(img,pointx,(x,y),(0,255,0),1)
+
     
 def dif(po1,po2):
     (x,y)=map(lambda a,b: a-b, po2, po1)
@@ -58,6 +73,16 @@ def slope(po1,po2):
 
 def intersection(po1,po2,po3,po4):
        m1=slope(po2,po1)
+       m2=slope(po3,po4)
+       x1,y1=po1
+       x2,y2=po3
+       if m1==m2 : 
+          m1==m1+0.01 
+       x=(m1*x1-m2*x2+y2-y1)/(m1-m2)
+       y=m1*(x-x1)+y1
+       return (round(x),round(y))
+
+def intersection1(po1,m1,po3,po4):
        m2=slope(po3,po4)
        x1,y1=po1
        x2,y2=po3

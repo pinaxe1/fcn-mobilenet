@@ -1,0 +1,93 @@
+import cv2
+
+def drawLines1(img,tuplist):
+    
+    if len(tuplist)>1:         
+       cv2.line(img,tuplist[0],tuplist[1],(0,255,0),1)
+    if len(tuplist)>2:
+       cv2.line(img,tuplist[1],tuplist[2],(0,255,0),1)
+    if len(tuplist)>3:
+       cv2.line(img,tuplist[2],tuplist[3],(0,255,0),1)
+       cv2.line(img,tuplist[0],tuplist[3],(0,255,0),1)
+    if len(tuplist)>4:
+       tuplist[:]=[]
+
+def drawLines2(img,tuplist):
+    if len(tuplist)==4:
+       pointx=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
+       for i in tuplist :  
+          cv2.line(img,pointx,i,(0,255,0),1)
+       pointx=intersection(tuplist[3],tuplist[0],tuplist[1],tuplist[2])
+       for i in tuplist :  
+          cv2.line(img,pointx,i,(0,255,0),1)
+ 
+def drawLines3(img,tuplist):
+    if len(tuplist)==4:
+       pointx=intersection(tuplist[3],tuplist[0],tuplist[1],tuplist[2])
+       x1,y1=tuplist[3]
+       x2,y2=tuplist[2]
+       dx=(x1-x2)/6
+       dy=(y1-y2)/6
+       for i in range(6):
+           x=round(x2+i*dx)
+           y=round(y2+i*dy)
+           cv2.line(img,pointx,(x,y),(0,255,0),1)
+       pointx=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
+       x1,y1=tuplist[1]
+       x2,y2=tuplist[2]
+       dx=(x1-x2)/4
+       dy=(y1-y2)/4
+       for i in range(4):
+           x=round(x2+i*dx)
+           y=round(y2+i*dy)
+           cv2.line(img,pointx,(x,y),(0,255,0),1)
+
+    
+def dif(po1,po2):
+    (x,y)=map(lambda a,b: a-b, po2, po1)
+    
+def slope(po1,po2):
+       (x,y)=map(lambda a,b: a-b, po2, po1)
+       return y/x
+
+def intersection(po1,po2,po3,po4):
+       m1=slope(po2,po1)
+       m2=slope(po3,po4)
+       x1,y1=po1
+       x2,y2=po3
+       if m1==m2 : 
+          m1==m1+0.01 
+       x=(m1*x1-m2*x2+y2-y1)/(m1-m2)
+       y=m1*(x-x1)+y1
+       return (round(x),round(y))
+    
+def MouseEventCallback(event, x, y, flags, param):
+    global tuplist
+    if event == cv2.EVENT_LBUTTONUP:
+        tuplist.append((x,y))
+
+
+def main(argv=None):
+    global tuplist
+    windowName = 'Drawing'
+    cap = cv2.VideoCapture(0)
+    
+    cv2.namedWindow(windowName)
+    cv2.setMouseCallback(windowName, MouseEventCallback)
+    while (True):
+      _, img = cap.read()  
+      drawLines1(img, tuplist) 
+      drawLines2(img,tuplist)
+      drawLines3(img,tuplist)
+      cv2.imshow(windowName, img)
+      key=cv2.waitKey(1) & 0xFF
+      if key== ord('c'):
+         del tuplist[:]
+      if key== ord('x'):
+         break
+    cv2.destroyAllWindows()
+  
+if __name__ == "__main__":
+   tuplist=[] 
+   main()    
+   

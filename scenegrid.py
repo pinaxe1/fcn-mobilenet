@@ -49,26 +49,32 @@ def drawLines3(img,tuplist):
            cv2.line(img,pointx,(x,y),(0,255,0),1)
 
 def drawLines4(img,tuplist):
-    screen=[(((0,0),(0,480)),((0,480),(640,480)),((640,480),(640,0)),((0,0),(640,0)))]
+    screen=[(0,0,0,480),(0,480,640,480),(640,480,640,0),(0,0,640,0)]
     if len(tuplist)==4:
        pointx1=intersection(tuplist[3],tuplist[0],tuplist[1],tuplist[2])
-       pointx2=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
+       #pointx2=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
        m1=slope(pointx1,tuplist[0])
-       m2=slope(pointx2,tuplist[1])
-       dm =(m1-m2)/6
-       for i in range(m1,m2,dm):
+       m2=slope(pointx1,tuplist[1])
+       dm =(m2-m1)/6
+       i=m1
+       while i<m2: 
           for j in screen :
-             pointxs=intersection1(pointx1,i,j])   
+             pointxs=intersection1(pointx1,i,j)   
              cv2.line(img,pointx1,pointxs,(0,255,0),1)
+          i+=dm   
 
     
 def dif(po1,po2):
     (x,y)=map(lambda a,b: a-b, po2, po1)
     
+     
 def slope(po1,po2):
        (x,y)=map(lambda a,b: a-b, po2, po1)
-       return y/x
-
+       if x==0 : 
+          return 1000
+       else :
+          return y/x
+          
 def intersection(po1,po2,po3,po4):
        m1=slope(po2,po1)
        m2=slope(po3,po4)
@@ -80,12 +86,13 @@ def intersection(po1,po2,po3,po4):
        y=m1*(x-x1)+y1
        return (round(x),round(y))
 
-def intersection1(po1,m1,po3,po4):
-       m2=slope(po3,po4)
+def intersection1(po1,m1,lin):
        x1,y1=po1
-       x2,y2=po3
+       m2=slope((lin[0],lin[1]),(lin[2],lin[3]))
+       x2,y2,_,_=lin
+      
        if m1==m2 : 
-          m1==m1+0.01 
+          m1=m1+0.01 
        x=(m1*x1-m2*x2+y2-y1)/(m1-m2)
        y=m1*(x-x1)+y1
        return (round(x),round(y))
@@ -106,8 +113,9 @@ def main(argv=None):
     while (True):
       _, img = cap.read()  
       drawLines1(img, tuplist) 
-      drawLines2(img,tuplist)
-      drawLines3(img,tuplist)
+     # drawLines2(img,tuplist)
+     # drawLines3(img,tuplist)
+      drawLines4(img,tuplist)
       cv2.imshow(windowName, img)
       key=cv2.waitKey(1) & 0xFF
       if key== ord('c'):
@@ -119,4 +127,3 @@ def main(argv=None):
 if __name__ == "__main__":
    tuplist=[] 
    main()    
-   

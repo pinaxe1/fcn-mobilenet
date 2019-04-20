@@ -25,36 +25,41 @@ def drawLines1(img,tuplist):
 
              
 def drawLines4(img,tuplist):
+    global xo,yo
     if len(tuplist)==4:       
        pointx=intersection(tuplist[0],tuplist[1],tuplist[2],tuplist[3])
        px1=pointx
-       x,y=dif(pointx,tuplist[0])
-       m1=math.atan2(y,x)
-       x,y=dif(pointx,tuplist[3])
-       m2=math.atan2(y,x)
-       if m1>m2 : m1,m2=m2,m1
-       dm =(m2-m1)/6
+       a,b=dif(pointx,tuplist[0])
+       m1=math.atan2(a,b)
+       a,b=dif(pointx,tuplist[3])
+       m2=math.atan2(a,b)
+       '''if m1>m2 : m1,m2=m2,m1
+       dm =(m2-m1)/5
        m1-=2*dm
        while m1<=m2+2*dm:    
              a,b = farpoints(pointx,math.tan(m1))           
              cv2.line(img,a,b,(255,0,0),1)
              m1+=dm   
+       '''      
        pointx=intersection(tuplist[3],tuplist[0],tuplist[1],tuplist[2])
        px2=pointx
        x,y=dif(pointx,tuplist[0])
        m1=math.atan2(y,x)
        x,y=dif(pointx,tuplist[1])
        m2=math.atan2(y,x)
-       if m1>m2 : m1,m2=m2,m1
-       dm =(m2-m1)/6
+       ''' if m1>m2 : m1,m2=m2,m1
+       dm =(m2-m1)/5
        m1-=2*dm
        while m1<=m2+2*dm:    
              a,b = farpoints(pointx,math.tan(m1))           
              cv2.line(img,a,b,(255,0,0),1)
              m1+=dm   
-       x,y=mapToSurface(xo,yo,px1,px2)
-       text=str(x)+" "+str(y)
-       cv2.putText(img, text, (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA) 
+       '''
+       m1,m2=mapToSurface(xo,yo,px1,px2)
+       m11,m12=mapToInches(tuplist,px1,px2,m2,m1,5)
+       
+       cv2.putText(img,str(m11)[:7], (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA) 
+       cv2.putText(img,str(m12)[:7], (10,60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA) 
 
 def mapToSurface(x,y,px1,px2):
     a,b=dif(px1,(x,y))
@@ -62,6 +67,24 @@ def mapToSurface(x,y,px1,px2):
     a,b=dif(px2,(x,y))
     m2=math.atan2(a,b)
     return m1,m2
+
+def mapToInches(tuplist,px1,px2,m1,m2,scale=5):
+
+    a,b=dif(px2,tuplist[0])
+    a0=math.atan2(a,b)
+    a,b=dif(px2,tuplist[1])
+    a1=math.atan2(a,b)
+    alpha=scale/(a1-a0)
+    m11=alpha*(m1-a0)
+    
+    a,b=dif(px1,tuplist[0])
+    a0=math.atan2(a,b)
+    a,b=dif(px1,tuplist[2])
+    a1=math.atan2(a,b)
+    alpha=scale/(a1-a0)
+    m12=alpha*(m2-a0)
+    
+    return m11,m12
 
 def dif(po1,po2):
     x,y=map(lambda a,b: a-b, po2, po1)
@@ -99,7 +122,9 @@ def farpoints(po1,m1):
     if visible(x,y) : points.append((round(x),round(y)))
     y=480; x=(y-y1)/m1+x1
     if visible(x,y) : points.append((round(x),round(y)))
-    
+    if len(points)==0:
+       points.append((0,0))
+       points.append((0,0))
     return points
    
 def MouseEventCallback(event, x, y, flags, param):

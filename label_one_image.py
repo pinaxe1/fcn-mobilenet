@@ -14,6 +14,7 @@ import tensorflow.contrib.slim as slim
 import Utils as utils
 from collections import namedtuple
 import time
+import cv2
 
 NUM_OF_CLASSES = 12
 learning_rate =1e-4   #  "Learning rate for Adam Optimizer")
@@ -25,11 +26,8 @@ chk_pt="model.ckpt-99500"
 debug=False   #", "Debug mode: True/ False")
 mode = "visualize"  # , "Mode train/ validate/ visualize")
 
-#MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_1.0_224_2017_06_14.tar.gz'
-MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_0.25_128.tgz'
-
 IMAGE_NET_MEAN = [103.939, 116.779, 123.68]
-IMAGE_SIZE = (320, 480)
+IMAGE_SIZE = ( 320, 480)
 MAX_ITERATION = int(1e5 + 1)
 # Conv and DepthSepConv namedtuple define layers of the MobileNet architecture
 # Conv defines 3x3 convolution layers
@@ -108,8 +106,6 @@ def inference(image, dropout_keep_prob, num_classes=NUM_OF_CLASSES):
 
 
 def main(argv=None):
-    
-    utils.get_model_data(model_dir, MODEL_URL)
     keep_probability = tf.placeholder(tf.float32, name="keep_probabilty")
     image = tf.placeholder( tf.float32, shape=[None, IMAGE_SIZE[0], IMAGE_SIZE[1], 3], name="input_image")
     
@@ -123,17 +119,26 @@ def main(argv=None):
         saver = tf.train.Saver()
         saver.restore(sess, logs_dir+chk_pt)
        
-        images = utils.read_image(data_dir + 'train/20180429_081127.png',image_options)
+        images = utils.read_image('F:/TFP2/s1big/yess/20180427_173026.JPG',image_options)
         t1 = time.time()
         pred = sess.run(pred_annotation, feed_dict={image: images, keep_probability: 1.0})
         t2 = time.time()
         print('time sec. elapsed:',t2 - t1)
         
         pred = np.squeeze(pred, axis=3)
-        
-        utils.save_image(images[0].astype(np.uint8), logs_dir, name="1inp_")
+        im=images[0].astype(np.uint8)
+        utils.save_image(im, logs_dir, name="1inp_")
         utils.save_image(utils.decode_segmap(pred[0]), logs_dir, name="1pred_")
 
-    sess.close()
+    cv2.namedWindow('window', cv2.WINDOW_NORMAL)
+
+    while(True):
+        
+        cv2.imshow('window', im)        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+          break           
+    
+    cv2.destroyAllWindows()    
+    qsess.close()
 if __name__ == "__main__":
     tf.app.run()

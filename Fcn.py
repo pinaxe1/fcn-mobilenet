@@ -25,13 +25,13 @@ model_dir = "Model_zoo/" # , "Path to mobile model mat")
 model="mobilenet_v1_0.25_128.ckpt" # Latest checkpoint. Better select it automatically
 chk_pt="model.ckpt-100000"#"mobilenet_v1_0.25_128.ckpt" # Latest checkpoint. Better select it automatically
 debug=False   # Debug mode: True False 
-mode = "validate"  #  Modes:  "train"validate"visualize"
+mode = "train"  #  Modes:  "train"validate"visualize"
 
 #MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_1.0_224_2017_06_14.tar.gz'
 MODEL_URL = 'http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_0.25_128.tgz'
 
 IMAGE_NET_MEAN = [103.939, 116.779, 123.68]
-IMAGE_SIZE = (320, 480)
+IMAGE_SIZE = (640, 480)#(320, 480)
 MAX_ITERATION = int(1e5 + 1)
 # Conv and DepthSepConv namedtuple define layers of the MobileNet architecture
 # Conv defines 3x3 convolution layers
@@ -170,8 +170,8 @@ def main(argv=None):
         saver = tf.train.Saver(variable_to_restore)
         #saver.restore(sess, 'Model_zoo/mobilenet_v1_1.0_224.ckpt')
         #saver.restore(sess, 'Model_zoo/mobilenet_v1_0.25_128.ckpt')
-        #saver.restore(sess, model_dir+model)
-        saver.restore(sess, logs_dir+chk_pt)
+        saver.restore(sess, model_dir+model)
+        #saver.restore(sess, logs_dir+chk_pt)
         summary_writer = tf.summary.FileWriter(logs_dir, sess.graph)
 
         # reset saver

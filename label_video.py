@@ -22,12 +22,12 @@ batch_size=1   # batch size for training")
 logs_dir= "logs/"  # "path to logs directory")
 data_dir= "Data_zoo/camvid/"  # "path to dataset")
 model_dir = "Model_zoo/" # , "Path to mobile model mat")
-chk_pt="model.ckpt-99500"
+chk_pt="model.ckpt-100000"
 debug=False   #", "Debug mode: True/ False")
 mode = "visualize"  # , "Mode train/ validate/ visualize")
 
 IMAGE_NET_MEAN = [103.939, 116.779, 123.68]
-IMAGE_SIZE = (640,360) # 320, 480)
+IMAGE_SIZE = (480,640) # 320, 480)
 MAX_ITERATION = int(1e5 + 1)
 # Conv and DepthSepConv namedtuple define layers of the MobileNet architecture
 # Conv defines 3x3 convolution layers

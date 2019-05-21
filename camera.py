@@ -1,5 +1,7 @@
 import cv2
 import math
+from datetime import datetime
+
 '''
 The script intended to explore transformations from screen coordinates to a desk surface coordinates.
 It employs the usb camera to take an image of a page with printed square or a greed.
@@ -115,10 +117,17 @@ def main(argv=None):
     cv2.setMouseCallback(windowName, MouseEventCallback)
     while (True):
       _, img = cap.read()  
+      # current date and time
+      now = datetime.now()
+      timestamp = datetime.timestamp(now)
+      
       drawLines1(img, tuplist) 
       drawLines2(img,tuplist)
       cv2.imshow(windowName, img)
       key=cv2.waitKey(1) & 0xFF
+      if key== ord('z'):
+         filename=str(timestamp)+'.png' 
+         cv2.imwrite(filename, img)
       if key== ord('c'):
          del tuplist[:]
       if key== ord('x'):

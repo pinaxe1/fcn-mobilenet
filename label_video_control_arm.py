@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 """
- The code derived from:  https://github.com/vietdoan/fcn-mobilenet
- Which is derivation from: https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.py
- The script is an excerpt from Fcn.py to perform semantic segmentation.
- All routines for training and validation are stripped away.
+ The code derived from: https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.py
+ The script takes images from camera , performs semantic segmentation and commands robotic arm 
+ to pick and throw away things classified as a trash.
+  
+ How it works in little more details:
+ Acquires image from camera
+ performs a semantic segmentation on the image
+ checks random point on segmented image 
+ if the point is classified as a trash transform its coordinates to robot arm angles and sends command to the arm over USB.
+ To transform the point coordinates into arm angles transformation mesh should be prepared in advance with another script.
+ 
+ The code loads pretrained model form file chk_pt="model.ckpt-1000"
+ loads coordinate to arm angles mesh from file inf=open('datafile.dat', 'rb')
  
 """
 

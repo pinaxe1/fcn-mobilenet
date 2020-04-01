@@ -9,7 +9,8 @@
  performs a semantic segmentation on the image
  checks random point on segmented image 
  if the point is classified as a trash transform its coordinates to robot arm angles and sends command to the arm over USB.
- To transform the point coordinates into arm angles transformation mesh should be prepared in advance with another script.
+ To transform the point coordinates into arm angles transformation mesh should be prepared in advance with collectsamples.py script.
+ It resides in Spatial-linear-interpolation-on-irregular-grid repository.
  
  The code loads pretrained model form file chk_pt="model.ckpt-1000"
  loads coordinate to arm angles mesh from file inf=open('datafile.dat', 'rb')
